@@ -22,9 +22,15 @@ async function analyzeReport( reportText, basePath ) {
         return;
     }
 
+    const reportedIssues = new Set();
     for ( const issue of issues ) {
+        const issueText = `::error file=${issue.File},line=${issue.Line},col=${issue.Offset}::${issue.Message}`;
+        if ( reportedIssues.has( issueText ) ) {
+            continue;
+        }
+        reportedIssues.add( issueText );
         console.log( `${issue.File}:${issue.Line}:` );
-        console.log( `::error file=${issue.File},line=${issue.Line},col=${issue.Offset}::${issue.Message}` );
+        console.log( issueText );
     }
     process.exit( 1 );
 }
