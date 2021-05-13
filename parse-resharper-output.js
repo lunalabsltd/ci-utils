@@ -13,10 +13,12 @@ async function analyzeReport( reportText, basePath, pathPrefix ) {
     issues.forEach( ( i ) => {
         i.File = i.File.split( '\\' ).join( '/' );
     } );
-    issues = issues.filter( ( i ) => i.File.startsWith( basePath ) && i.TypeId !== 'CSharpErrors' && i.TypeId !== 'CppCompilerErrors' );
-    issues.forEach( ( i ) => {
-        i.File = i.File.replace( basePath, '' );
-    } );
+    issues = issues.filter( ( i ) => ( !basePath || i.File.startsWith( basePath ) ) && i.TypeId !== 'CSharpErrors' && i.TypeId !== 'CppCompilerErrors' );
+    if ( basePath ) {
+        issues.forEach( ( i ) => {
+            i.File = i.File.replace( basePath, '' );
+        } );
+    }
     if ( issues.length === 0 ) {
         console.log( 'No errors found' );
         return;
@@ -35,6 +37,6 @@ async function analyzeReport( reportText, basePath, pathPrefix ) {
     process.exit( 1 );
 }
 
-const [ _, __, reportFileName, basePath, pathPrefix = '' ] = process.argv;
+const [ _, __, reportFileName, basePath = null, pathPrefix = '' ] = process.argv;
 const reportFileText = fs.readFileSync( reportFileName ).toString( 'utf-8' );
 analyzeReport( reportFileText, basePath, pathPrefix );
